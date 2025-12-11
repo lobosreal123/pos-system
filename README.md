@@ -1,152 +1,208 @@
-# POS System - Advanced Retail Management
+# APPLE BAZAAR - POS System
 
-A comprehensive Point of Sale (POS) system with IMEI tracking, multi-store support, and advanced inventory management features.
+Advanced Point of Sale (POS) System with IMEI Tracking, Multi-Store Support, and Comprehensive Sales Management.
 
 ## Features
 
-### ✅ Multi-item Shopping Cart
-- Device selection from inventory
-- Real-time stock checking
-- Flexible payment system (cash, mobile money, split payments)
-- Partial payment support
+- 🛒 **Multi-Item Shopping Cart** - Add items with quantity control
+- 📱 **IMEI & Device Tracking** - Track IMEI 1, IMEI 2, and Serial Numbers
+- 💰 **Flexible Payment Options** - Cash, Mobile Money, Split Payment
+- 👥 **Cashier Management** - Multi-user support with secure login
+- 📊 **Inventory Management** - Real-time stock tracking, low stock alerts
+- 📈 **Sales Analytics** - Comprehensive dashboard with charts and reports
+- 🏪 **Multi-Store Support** - Manage multiple store locations
+- 💵 **Multi-Currency** - Support for USD and GHS (Ghanaian Cedi)
+- 🖨️ **Receipt Printing** - Print receipts with QR codes
+- 📱 **Barcode Scanner** - Scan barcodes using web camera
+- 📦 **CSV Export** - Export sales and inventory data
+- 💾 **Backup & Restore** - Automatic backup functionality
 
-### ✅ IMEI & Device Tracking
-- IMEI 1 (required for all devices)
-- IMEI 2 (optional for dual SIM)
-- Serial Number (optional for custom items)
-- Multi-device sales with individual IMEI tracking
-- IMEI display in Sales History
-- Search functionality across all IMEIs
+## Tech Stack
 
-### ✅ Cashier Management
-- Multi-user cashier system (up to 20 users)
-- Secure login with password authentication
-- Session persistence across app restarts
-- Smart navigation (back without logout goes to dashboard)
-- Cashier name tracked on all sales
+- **React 18** - UI Framework
+- **Vite** - Build Tool
+- **React Router** - Navigation
+- **Tailwind CSS** - Styling (Glassmorphism UI)
+- **Recharts** - Data Visualization
+- **LocalStorage** - Data Persistence
 
-### ✅ Inventory Management
-- Add/edit devices with model, storage, color, condition
-- Real-time stock adjustments
-- Custom items (non-iPhone products)
-- Accessory management
-- Inventory value tracking
-- Test data generation for quick setup
+## Getting Started
 
-### ✅ Sales Management
-- Complete sales history with date grouping
-- Search by IMEI, model, cashier, buyer name
-- Detailed sale view with all information
-- Delete sales with admin password protection
-- Payment status tracking (paid, unpaid, partial)
+### Prerequisites
 
-### ✅ Customer Management
-- Add/manage customers
-- View purchase history
-- Contact information tracking
+- Node.js 18+ and npm
 
-### ✅ Multi-Currency Support
-- USD ($) formatting
-- Ghanaian Cedi (₵) formatting
-- Currency preference in Admin Settings
-- Persistent currency selection
+### Installation
 
-### ✅ Admin Features
-- Password-protected admin panel (default: admin123)
-- Three management tabs: Inventory, Accessories, Users, Settings
-- Inventory value summary
-- Cashier user creation/management
-- Custom items administration
-
-### ✅ Dashboard
-- Today's revenue
-- Total revenue
-- Recent transactions
-- Unpaid orders alert
-- Quick access to POS, sales history, customers
-
-### ✅ iPhone-Specific Features
-- iPhone model catalog (iPhone 17 and earlier)
-- Color options (Desert Titanium, Midnight Black, Arctic Blue, Rose Gold, Natural Titanium)
-- Storage options (up to 2TB)
-- Condition tracking (New, Refurbished, Used)
-- IMEI 2 and Serial hidden for iPhone models
-
-### ✅ Sales Analytics and Charts
-- Daily/weekly/monthly summaries
-- Inventory movement reports
-- Top selling devices
-- Top performing cashiers
-
-### ✅ CSV Export of Sales Data
-- Inventory export
-- Automatic backup system
-- Data restore functionality
-
-### ✅ Multiple Store Locations
-- Store-specific inventory
-- Consolidated reporting
-- Per-store settings
-- Inter-store transfers
-
-## Installation
-
-1. Install dependencies:
 ```bash
+# Clone the repository
+git clone https://github.com/lobosreal123/pos-system.git
+
+# Navigate to project directory
+cd pos-system
+
+# Install dependencies
 npm install
-```
 
-2. Start the development server:
-```bash
+# Start development server
 npm run dev
 ```
 
-3. Build for production:
+The app will open at `http://localhost:3000`
+
+### Build for Production
+
 ```bash
 npm run build
 ```
 
-## Default Login
+The production build will be in the `dist` folder.
 
-- **Username:** admin
-- **Password:** admin123
+### Preview Production Build
 
-## Usage
+```bash
+npm run preview
+```
 
-1. **Login**: Use the default admin credentials or create a new cashier account
-2. **POS**: Add items to cart, enter IMEI information, and process payments
-3. **Dashboard**: View sales statistics and quick actions
-4. **Sales History**: Search and view all past transactions
-5. **Customers**: Manage customer information and view purchase history
-6. **Admin Panel**: 
-   - Manage inventory and accessories
-   - Create and manage cashier accounts
-   - View analytics and reports
-   - Manage multiple store locations
-   - Configure system settings
+## Deployment
+
+### Quick Deploy Options
+
+#### Option 1: Vercel (Recommended)
+1. Push code to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Import your GitHub repository
+4. Vercel auto-detects and deploys
+
+#### Option 2: Netlify
+1. Push code to GitHub
+2. Go to [netlify.com](https://netlify.com)
+3. Import your GitHub repository
+4. Netlify auto-detects and deploys
+
+Both platforms will automatically redeploy when you push to the `main` branch.
+
+### Manual Deployment
+
+See [HOSTING_GUIDE.md](./HOSTING_GUIDE.md) for detailed instructions.
+
+## Automatic Updates
+
+The project is configured for automatic deployments:
+
+### GitHub Actions (CI/CD)
+- Automatically builds and deploys when you push to `main` branch
+- Configuration: `.github/workflows/deploy.yml`
+
+### Setup Automatic Deployment:
+
+**For Vercel:**
+1. Connect your GitHub repo to Vercel
+2. Vercel automatically deploys on every push
+
+**For Netlify:**
+1. Connect your GitHub repo to Netlify
+2. Netlify automatically deploys on every push
+
+**For GitHub Actions:**
+1. Add secrets in GitHub repo settings:
+   - `VERCEL_TOKEN` (for Vercel)
+   - `VERCEL_ORG_ID`
+   - `VERCEL_PROJECT_ID`
+   - Or `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` (for Netlify)
+
+## Making Updates
+
+1. **Make your code changes**
+2. **Test locally:**
+   ```bash
+   npm run dev
+   ```
+3. **Commit and push:**
+   ```bash
+   git add .
+   git commit -m "Description of changes"
+   git push
+   ```
+4. **Automatic deployment** - Your hosting platform will automatically rebuild and deploy
+
+## Project Structure
+
+```
+pos-system/
+├── src/
+│   ├── components/     # Reusable components
+│   ├── context/        # React Context (State Management)
+│   ├── pages/          # Page components
+│   ├── utils/          # Utility functions
+│   └── main.jsx        # Entry point
+├── public/             # Static assets
+├── dist/               # Production build (generated)
+├── .github/            # GitHub Actions workflows
+├── vercel.json         # Vercel configuration
+├── netlify.toml        # Netlify configuration
+└── package.json        # Dependencies and scripts
+```
+
+## Default Login Credentials
+
+**Admin:**
+- Username: `admin`
+- Password: `admin123`
+
+**Cashier:**
+- Username: `cashier`
+- Password: `cashier123`
+
+**⚠️ Important:** Change these passwords in production!
 
 ## Data Storage
 
-All data is stored locally in the browser using localStorage. Each store has its own separate inventory, sales, and customer data.
+Currently, the app uses **localStorage** for data persistence:
+- Data is stored in the user's browser
+- Data is NOT shared across devices
+- Data is lost if browser cache is cleared
 
-## Backup & Restore
+For production with shared data, consider migrating to:
+- Firebase Firestore
+- Supabase
+- MongoDB Atlas
+- PostgreSQL with backend API
 
-Use the Settings tab in the Admin Panel to:
-- Create backups of all data
-- Restore from backup files
-- Export inventory and sales data as CSV
+## Environment Variables
 
-## Technologies Used
+No environment variables required for basic setup.
 
-- React 18
-- React Router 6
-- Tailwind CSS
-- Recharts (for analytics)
-- date-fns (for date formatting)
-- lucide-react (for icons)
-- Vite (build tool)
+## Browser Support
+
+- Chrome (recommended)
+- Firefox
+- Safari
+- Edge
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Commit and push
+5. Create a Pull Request
 
 ## License
 
-MIT
+Private project - All rights reserved
 
+## Support
+
+For issues or questions:
+1. Check the documentation files
+2. Review the code comments
+3. Create an issue on GitHub
+
+## Version
+
+Current version: 1.0.0
+
+---
+
+Built with ❤️ for APPLE BAZAAR
