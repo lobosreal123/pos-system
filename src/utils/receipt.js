@@ -255,8 +255,8 @@ export const generateReceiptHTML = async (sale, settings = {}) => {
             <span><strong>${formatMoney((sale.cashAmount || 0) + (sale.mobileMoneyAmount || 0))}</strong></span>
           </div>
         ` : ''}
-        <div class="status-badge status-${sale.status}">
-          ${sale.status.toUpperCase()}
+        <div class="status-badge status-${sale.status || 'pending'}">
+          ${(sale.status || 'pending').toUpperCase()}
         </div>
       </div>
       

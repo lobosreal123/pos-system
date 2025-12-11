@@ -398,7 +398,7 @@ const POS = () => {
     setCart(updatedCart)
   }
 
-  const processPayment = () => {
+  const processPayment = async () => {
     // Always use both amounts - determine payment method from what was entered
     const cash = parseFloat(cashAmount) || 0
     const mobileMoney = parseFloat(mobileMoneyAmount) || 0
@@ -471,13 +471,43 @@ const POS = () => {
       currency: currency || 'USD'
     }
 
-    const newSale = addSale(sale)
-    setLastSale(newSale)
+    try {
+      const newSale = await addSale(sale)
+      // Ensure all required fields are present
+      if (newSale) {
+        setLastSale({
+          ...newSale,
+          status: newSale.status || sale.status || 'unpaid',
+          paymentMethod: newSale.paymentMethod || sale.paymentMethod || 'Unpaid',
+          cashAmount: newSale.cashAmount ?? sale.cashAmount ?? 0,
+          mobileMoneyAmount: newSale.mobileMoneyAmount ?? sale.mobileMoneyAmount ?? 0
+        })
+      } else {
+        // Fallback: use the sale object directly if addSale returns null
+        setLastSale({
+          ...sale,
+          id: sale.id || Date.now().toString(),
+          status: sale.status || 'unpaid',
+          paymentMethod: sale.paymentMethod || 'Unpaid'
+        })
+      }
+    } catch (error) {
+      console.error('Error adding sale:', error)
+      // Fallback: still show receipt even if save fails
+      setLastSale({
+        ...sale,
+        id: sale.id || Date.now().toString(),
+        status: sale.status || 'unpaid',
+        paymentMethod: sale.paymentMethod || 'Unpaid'
+      })
+    }
 
-    // Reset
+    // Reset form regardless of success/failure
     setCart([])
     setBuyerName('')
     setBuyerPhone('')
+    setCashAmount('')
+    setMobileMoneyAmount('')
     setShowPaymentModal(false)
     
     // Show receipt modal
@@ -1205,7 +1235,7 @@ const POS = () => {
         )}
 
         {/* Receipt Modal */}
-        {showReceiptModal && lastSale && (
+        {showReceiptModal && lastSale && lastSale.status && (
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-md w-full p-6">
               <div className="flex justify-between items-start mb-4">
@@ -1227,7 +1257,7 @@ const POS = () => {
                     Total: {formatMoney(lastSale.total)}
                   </div>
                   <div className="text-sm text-green-700">
-                    Status: {lastSale.status.toUpperCase()}
+                    Status: {(lastSale.status || 'pending').toUpperCase()}
                   </div>
                 </div>
 
