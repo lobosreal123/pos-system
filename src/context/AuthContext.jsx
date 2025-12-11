@@ -40,6 +40,8 @@ export const AuthProvider = ({ children }) => {
       const user = storedUsers.find(u => u.id === sessionData.userId)
       if (user) {
         setCurrentUser(user)
+        // Set Firebase user ID for server storage
+        localStorage.setItem('firebaseUserId', user.id)
       }
     }
   }, [])
@@ -54,6 +56,9 @@ export const AuthProvider = ({ children }) => {
         userId: user.id,
         timestamp: new Date().toISOString()
       }))
+      // Set Firebase user ID for server storage (using user.id as unique identifier)
+      // This allows data to be associated with the logged-in user
+      localStorage.setItem('firebaseUserId', user.id)
       return { success: true, user }
     }
     return { success: false, error: 'Invalid username or password' }
@@ -62,6 +67,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setCurrentUser(null)
     localStorage.removeItem('currentSession')
+    localStorage.removeItem('firebaseUserId')
   }
 
   const addUser = (userData) => {
