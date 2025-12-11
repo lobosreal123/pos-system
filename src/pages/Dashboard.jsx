@@ -51,10 +51,10 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Dashboard</h1>
-          <p className="text-gray-600 mt-1 backdrop-blur-sm bg-white/40 inline-block px-3 py-1 rounded-lg border border-white/20">Welcome back, {currentUser?.name}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1 backdrop-blur-sm bg-white/40 inline-block px-3 py-1 rounded-lg border border-white/20">Welcome back, {currentUser?.name}</p>
         </div>
 
         {/* Stats Grid */}
@@ -113,13 +113,13 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Recent Transactions */}
           <div className="backdrop-blur-xl bg-white/60 rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all">
-            <div className="p-6 border-b border-white/20 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
-              <h2 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Recent Transactions</h2>
+            <div className="p-4 sm:p-6 border-b border-white/20 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+              <h2 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Recent Transactions</h2>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {recentSales.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">No recent transactions</p>
               ) : (
@@ -127,7 +127,7 @@ const Dashboard = () => {
                   {recentSales.map(sale => (
                     <div
                       key={sale.id}
-                      className="flex items-center justify-between p-4 backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20 rounded-xl transition-all hover:scale-105 hover:shadow-lg"
+                      className="flex items-center justify-between p-3 sm:p-4 backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20 rounded-xl transition-all hover:scale-105 hover:shadow-lg"
                     >
                       <div>
                         <p className="font-semibold text-gray-900">
@@ -168,11 +168,11 @@ const Dashboard = () => {
 
           {/* Quick Actions */}
           <div className="backdrop-blur-xl bg-white/60 rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all">
-            <div className="p-6 border-b border-white/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
-              <h2 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Quick Actions</h2>
+            <div className="p-4 sm:p-6 border-b border-white/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+              <h2 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Quick Actions</h2>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 sm:p-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <Link
                   to="/pos"
                   className="flex flex-col items-center justify-center p-6 backdrop-blur-sm bg-blue-100/60 hover:bg-blue-200/60 border border-blue-300/30 rounded-xl transition-all hover:scale-105 hover:shadow-lg cursor-pointer group"

@@ -215,23 +215,23 @@ const AdminPanel = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-          <p className="text-gray-600 mt-1">Manage inventory, users, and system settings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Panel</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage inventory, users, and system settings</p>
         </div>
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="flex space-x-4 sm:space-x-8 px-3 sm:px-6 min-w-max sm:min-w-0">
               {tabs.map(tab => {
                 const Icon = tab.icon
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                    className={`flex items-center space-x-1 sm:space-x-2 py-3 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                       activeTab === tab.id
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -245,7 +245,7 @@ const AdminPanel = () => {
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             {/* Inventory Tab */}
             {activeTab === 'inventory' && (
               <InventoryTab
@@ -468,7 +468,7 @@ const InventoryTab = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -552,15 +552,15 @@ const InventoryModal = ({ formData, setFormData, onSave, onCancel, isAccessories
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-semibold">
-              {formData.id ? 'Edit' : 'Add'} {isAccessories ? 'Accessory' : 'Device'}
-            </h3>
+              <h3 className="text-lg sm:text-xl font-semibold">
+                {formData.id ? 'Edit' : 'Add'} {isAccessories ? 'Accessory' : 'Device'}
+              </h3>
             <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Name
@@ -789,7 +789,7 @@ const UsersTab = ({ showModal, setShowModal, editingUser, setEditingUser }) => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

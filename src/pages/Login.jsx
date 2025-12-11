@@ -24,13 +24,13 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <ShoppingCart className="w-8 h-8 text-white" />
+      <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 w-full max-w-md">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-blue-600 rounded-full mb-3 sm:mb-4">
+            <ShoppingCart className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">APPLE BAZAAR</h1>
-          <p className="text-gray-600 mt-2">Sign in to continue</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">APPLE BAZAAR</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-2">Sign in to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -77,7 +77,7 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-500 px-2">
           <p>Default admin: username: <strong>admin</strong>, password: <strong>admin123</strong></p>
         </div>
       </div>

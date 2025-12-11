@@ -543,13 +543,13 @@ const POS = () => {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Point of Sale</h1>
-          <p className="text-gray-600 mt-1">Select items and process sales</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Point of Sale</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Select items and process sales</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Inventory Selection */}
           <div className="lg:col-span-2 space-y-4">
             {/* Search */}
@@ -575,9 +575,9 @@ const POS = () => {
             </div>
 
             {/* Inventory Grid */}
-            <div className="backdrop-blur-xl bg-white/60 rounded-2xl shadow-xl border border-white/20 p-4">
-              <h2 className="text-lg font-semibold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Available Items</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
+            <div className="backdrop-blur-xl bg-white/60 rounded-2xl shadow-xl border border-white/20 p-3 sm:p-4">
+              <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Available Items</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
                 {filteredInventory.map(item => {
                   if (!item) return null
                   const cartItem = (cart || []).find(c => c && c.id === item.id && !c.imei1)
@@ -823,9 +823,9 @@ const POS = () => {
 
         {/* IMEI Collection Modal (during checkout) */}
         {showIMeIModal && selectedCartItem && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-              <h3 className="text-xl font-semibold mb-4">Enter IMEI for Each Device</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Enter IMEI for Each Device</h3>
               
               {/* List of items needing IMEI */}
               <div className="mb-6 backdrop-blur-sm bg-white/40 rounded-xl p-4 border border-white/20">
@@ -1010,9 +1010,9 @@ const POS = () => {
           const hasPayment = totalPaid > 0
           
           return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg max-w-md w-full p-6">
-                <h3 className="text-xl font-semibold mb-4">Process Payment</h3>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+              <div className="bg-white rounded-lg max-w-md w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Process Payment</h3>
                 <div className="space-y-4">
                   {/* Total Amount Display */}
                   <div className="p-3 backdrop-blur-sm bg-white/40 rounded-xl border border-white/20">
@@ -1167,13 +1167,13 @@ const POS = () => {
 
         {/* Unpaid Confirmation Modal */}
         {showUnpaidConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-md w-full p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-orange-600" />
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-md w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+              <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Confirm Unpaid Order</h3>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Confirm Unpaid Order</h3>
               </div>
               
               <div className="space-y-4">
@@ -1236,10 +1236,10 @@ const POS = () => {
 
         {/* Receipt Modal */}
         {showReceiptModal && lastSale && lastSale.status && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-md w-full p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold">Sale Completed!</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/30 max-w-md w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+              <div className="flex justify-between items-start mb-3 sm:mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold">Sale Completed!</h3>
                 <button
                   onClick={() => {
                     setShowReceiptModal(false)
