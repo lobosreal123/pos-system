@@ -1,0 +1,43 @@
+Firebase Configuration for Mobile App
+=====================================
+
+Use this SAME configuration in your mobile app:
+
+Project ID: apple-bazaar-pos
+
+Firebase Config (Web):
+{
+  "apiKey": "AIzaSyCRRwowUGmIpKx9R-QQdKJ-8LiC3BsJpEw",
+  "authDomain": "apple-bazaar-pos.firebaseapp.com",
+  "projectId": "apple-bazaar-pos",
+  "storageBucket": "apple-bazaar-pos.firebasestorage.app",
+  "messagingSenderId": "637833958508",
+  "appId": "1:637833958508:web:7c1be47f8c53ee69eb3449",
+  "measurementId": "G-Y1967RCSDT"
+}
+
+IMPORTANT NOTES:
+1. Use the SAME projectId: "apple-bazaar-pos"
+2. For mobile apps (iOS/Android), you'll register a NEW app in Firebase Console
+3. The mobile app will get a different appId, but projectId stays the same
+4. All other config values (apiKey, authDomain, etc.) can be the same
+
+HOW TO ADD MOBILE APP:
+1. Go to Firebase Console → Project Settings
+2. Click "Add app" → Choose iOS or Android
+3. Follow setup instructions
+4. You'll get mobile-specific config (different appId)
+5. Use the same projectId and other values
+
+DATA STRUCTURE:
+All data is stored per user:
+- users/{userId}/stores/{storeId}/inventory
+- users/{userId}/stores/{storeId}/sales
+- users/{userId}/stores/{storeId}/customers
+- users/{userId}/settings/app
+
+This means:
+- Same user logs in on web or mobile → sees same data
+- Data syncs automatically between platforms
+- Each user's data is isolated
+

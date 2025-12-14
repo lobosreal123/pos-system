@@ -193,7 +193,7 @@ export const generateReceiptHTML = async (sale, settings = {}) => {
   
   <div class="receipt-body">
     <div><strong>Sale ID:</strong> ${sale.id}</div>
-    <div><strong>Date:</strong> ${format(new Date(sale.createdAt), 'PPpp')}</div>
+    <div><strong>Date:</strong> ${sale.createdAt ? format(new Date(sale.createdAt), 'PPpp') : format(new Date(), 'PPpp')}</div>
     <div><strong>Cashier:</strong> ${sale.cashierName || 'N/A'}</div>
     <div><strong>Customer:</strong> ${sale.buyerName || 'Walk-in Customer'}</div>
     ${sale.buyerPhone ? `<div><strong>Phone:</strong> ${sale.buyerPhone}</div>` : ''}

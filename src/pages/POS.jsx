@@ -456,6 +456,7 @@ const POS = () => {
       }
     })
 
+    // Build sale object, excluding undefined values
     const sale = {
       items: saleItems,
       total: cartTotal,
@@ -467,8 +468,12 @@ const POS = () => {
       buyerName: buyerName || 'Walk-in Customer',
       buyerPhone: buyerPhone || '',
       cashierName: currentUser?.name || 'Unknown',
-      cashierId: currentUser?.id,
       currency: currency || 'USD'
+    }
+    
+    // Only include cashierId if it exists (Firestore doesn't accept undefined)
+    if (currentUser?.uid) {
+      sale.cashierId = currentUser.uid
     }
 
     try {
@@ -488,7 +493,8 @@ const POS = () => {
           ...sale,
           id: sale.id || Date.now().toString(),
           status: sale.status || 'unpaid',
-          paymentMethod: sale.paymentMethod || 'Unpaid'
+          paymentMethod: sale.paymentMethod || 'Unpaid',
+          createdAt: sale.createdAt || new Date().toISOString()
         })
       }
     } catch (error) {
@@ -498,7 +504,8 @@ const POS = () => {
         ...sale,
         id: sale.id || Date.now().toString(),
         status: sale.status || 'unpaid',
-        paymentMethod: sale.paymentMethod || 'Unpaid'
+        paymentMethod: sale.paymentMethod || 'Unpaid',
+        createdAt: sale.createdAt || new Date().toISOString()
       })
     }
 

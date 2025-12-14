@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && echo 'Build complete! Deploy the dist folder to your hosting platform.'"
+    "deploy": "npm run build && echo 'Build complete! Deploy the dist folder to your hosting platform.'",
+    "build:hostinger": "npm run build && echo '✅ Build complete! Upload all files from the dist folder to Hostinger public_html directory.'"
   },
   "dependencies": {
     "@zxing/library": "^0.20.0",

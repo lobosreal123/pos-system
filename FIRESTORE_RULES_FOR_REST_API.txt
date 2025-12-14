@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - user data
+    // Allow public reads for REST API (mobile app uses API key, not auth tokens)
+    // This is needed because REST API calls don't have request.auth
+    match /users/{userId} {
+      // Allow anyone to read user documents (needed for mobile app REST API)
+      // This is safe because we only expose public user info (email, name, status)
+      // Passwords are NOT stored in Firestore (handled by Firebase Auth on website)
+      allow read: if true;
+      
+      // Writes require authentication (for website users with Firebase Auth)
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow authenticated users to update (for admin approval on website)
+      allow update: if request.auth != null;
+      
+      // Allow creation during registration (website uses Firebase Auth)
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User subcollections (stores, inventory, sales, customers, settings)
+    // These require authentication - mobile app should use Firebase Auth SDK instead of REST API
+    match /users/{userId}/{document=**} {
+      // User can only access their own data if authenticated
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+

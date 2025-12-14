@@ -15,23 +15,13 @@ import { db, auth } from '../config/firebase'
 
 // Helper to get current user ID
 const getUserId = () => {
-  // Try to get from Firebase Auth first
+  // Use Firebase Auth user ID (required)
   if (auth.currentUser) {
     return auth.currentUser.uid
   }
   
-  // Fallback to localStorage (for initial setup or anonymous users)
-  // You can set this when user logs in
-  let userId = localStorage.getItem('firebaseUserId')
-  
-  if (!userId) {
-    // Create a temporary user ID for initial setup
-    // This will be replaced with actual Firebase Auth user ID
-    userId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    localStorage.setItem('firebaseUserId', userId)
-  }
-  
-  return userId
+  // Throw error if no authenticated user
+  throw new Error('User must be authenticated')
 }
 
 // Stores Collection
@@ -129,11 +119,12 @@ export const salesService = {
   create: async (storeId, saleData) => {
     const userId = getUserId()
     const salesRef = collection(db, 'users', userId, 'stores', storeId, 'sales')
+    const createdAt = new Date().toISOString()
     const docRef = await addDoc(salesRef, {
       ...saleData,
-      createdAt: new Date().toISOString()
+      createdAt
     })
-    return { id: docRef.id, ...saleData }
+    return { id: docRef.id, ...saleData, createdAt }
   },
 
   update: async (storeId, saleId, updates) => {

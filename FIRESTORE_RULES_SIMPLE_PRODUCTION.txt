@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - user data
+    match /users/{userId} {
+      // User can read/write their own document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow authenticated users to read user documents (for admin approval)
+      // Admin checks happen in application code
+      allow read: if request.auth != null;
+      
+      // Allow authenticated users to update if they're updating their own
+      // or if they're an admin (checked in app code)
+      allow update: if request.auth != null;
+      
+      // Allow user to create their own document during registration
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User subcollections (stores, inventory, sales, customers, settings)
+    match /users/{userId}/{document=**} {
+      // User can only access their own data if authenticated
+      // Approval and expiration checks happen in application code
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+

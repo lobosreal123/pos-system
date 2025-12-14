@@ -70,72 +70,22 @@ const AdminPanel = () => {
   const [editingUser, setEditingUser] = useState(null)
   const [showStoreModal, setShowStoreModal] = useState(false)
   const [editingStore, setEditingStore] = useState(null)
-  const [adminPassword, setAdminPassword] = useState('')
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
 
-  // Check admin access
-  if (currentUser?.role !== 'admin') {
-    if (!showPasswordPrompt) {
-      return (
-        <Layout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Admin Access Required</h2>
-              <button
-                onClick={() => setShowPasswordPrompt(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Enter Admin Password
-              </button>
-            </div>
-          </div>
-        </Layout>
-      )
-    }
-
-    return (
-      <Layout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center max-w-md w-full p-6 bg-white rounded-lg shadow">
-            <h2 className="text-2xl font-bold mb-4">Admin Access Required</h2>
-            <input
-              type="password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              placeholder="Enter admin password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && adminPassword === settings.adminPassword) {
-                  setShowPasswordPrompt(false)
-                }
-              }}
-            />
-            <button
-              onClick={() => {
-                if (adminPassword === settings.adminPassword) {
-                  setShowPasswordPrompt(false)
-                } else {
-                  alert('Invalid password')
-                }
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Access Admin Panel
-            </button>
-          </div>
-        </div>
-      </Layout>
-    )
-  }
+  // Admin Panel is now accessible to all registered users
+  // Only Users management is restricted to admins
 
   const tabs = [
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'accessories', label: 'Accessories', icon: Package },
-    { id: 'users', label: 'Users', icon: Users },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'stores', label: 'Stores', icon: Store },
     { id: 'settings', label: 'Settings', icon: SettingsIcon }
   ]
+
+  // Only show Users tab for admins
+  if (currentUser?.role === 'admin') {
+    tabs.splice(2, 0, { id: 'users', label: 'Users', icon: Users })
+  }
 
   // Analytics data
   const getDailyRevenue = () => {
@@ -281,8 +231,8 @@ const AdminPanel = () => {
               />
             )}
 
-            {/* Users Tab */}
-            {activeTab === 'users' && (
+            {/* Users Tab - Only for admins */}
+            {activeTab === 'users' && currentUser?.role === 'admin' && (
               <UsersTab
                 showModal={showUserModal}
                 setShowModal={setShowUserModal}
@@ -723,50 +673,139 @@ const InventoryModal = ({ formData, setFormData, onSave, onCancel, isAccessories
 
 // Users Tab Component
 const UsersTab = ({ showModal, setShowModal, editingUser, setEditingUser }) => {
-  const { users, addUser, updateUser, deleteUser } = useAuth()
-  const [formData, setFormData] = useState({
-    username: '',
+  const { currentUser, getAllUsers, getPendingUsers, approveUser, rejectUser, createUser, deleteUser, updateUserExpiration, isUserExpired } = useAuth()
+  const [allUsers, setAllUsers] = useState([])
+  const [pendingUsers, setPendingUsers] = useState([])
+  const [activeSection, setActiveSection] = useState('pending') // 'all' or 'pending'
+  const [loading, setLoading] = useState(false)
+  const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [showExpirationModal, setShowExpirationModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [newUserForm, setNewUserForm] = useState({
+    email: '',
     password: '',
-    name: ''
+    name: '',
+    role: 'cashier',
+    expirationDate: ''
   })
 
-  const handleEdit = (user) => {
-    setFormData({
-      username: user.username,
-      password: '',
-      name: user.name
-    })
-    setEditingUser(user)
-    setShowModal(true)
+  useEffect(() => {
+    loadUsers()
+  }, [])
+
+  const loadUsers = async () => {
+    setLoading(true)
+    try {
+      const users = await getAllUsers()
+      const pending = await getPendingUsers()
+      setAllUsers(users)
+      setPendingUsers(pending)
+    } catch (error) {
+      console.error('Error loading users:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    if (!formData.username || !formData.name) {
+  const handleApprove = async (userId) => {
+    if (window.confirm('Approve this user? They will be able to login and use the system.')) {
+      const result = await approveUser(userId)
+      if (result.success) {
+        await loadUsers()
+        alert('User approved successfully!')
+      } else {
+        alert('Error: ' + result.error)
+      }
+    }
+  }
+
+  const handleReject = async (userId) => {
+    if (window.confirm('Reject this user? They will not be able to login.')) {
+      const result = await rejectUser(userId)
+      if (result.success) {
+        await loadUsers()
+        alert('User rejected')
+      } else {
+        alert('Error: ' + result.error)
+      }
+    }
+  }
+
+  const handleDelete = async (userId, userName) => {
+    if (window.confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+      const result = await deleteUser(userId)
+      if (result.success) {
+        await loadUsers()
+        alert('User deleted successfully')
+      } else {
+        alert('Error: ' + result.error)
+      }
+    }
+  }
+
+  const handleAddUser = async () => {
+    if (!newUserForm.email || !newUserForm.password || !newUserForm.name) {
       alert('Please fill in all required fields')
       return
     }
 
-    if (editingUser) {
-      const updates = { name: formData.name }
-      if (formData.password) {
-        updates.password = formData.password
-      }
-      updateUser(editingUser.id, updates)
-    } else {
-      if (!formData.password) {
-        alert('Password is required for new users')
-        return
-      }
-      const result = addUser(formData)
-      if (!result.success) {
-        alert(result.error)
-        return
-      }
-    }
+    const expirationDate = newUserForm.expirationDate ? new Date(newUserForm.expirationDate).toISOString() : null
 
-    setFormData({ username: '', password: '', name: '' })
-    setEditingUser(null)
-    setShowModal(false)
+    const result = await createUser(
+      newUserForm.email,
+      newUserForm.password,
+      newUserForm.name,
+      newUserForm.role,
+      expirationDate
+    )
+
+    if (result.success) {
+      const message = result.message || 'User created successfully! They can now login.'
+      alert(message)
+      setShowAddUserModal(false)
+      setNewUserForm({ email: '', password: '', name: '', role: 'cashier', expirationDate: '' })
+      // User will be signed out, so page will redirect to login
+      // No need to reload users
+    } else {
+      alert('Error: ' + result.error)
+    }
+  }
+
+  const handleSetExpiration = async () => {
+    if (!selectedUser) return
+
+    const expirationDate = newUserForm.expirationDate ? new Date(newUserForm.expirationDate).toISOString() : null
+
+    const result = await updateUserExpiration(selectedUser.uid, expirationDate)
+    if (result.success) {
+      alert('User expiration date updated')
+      setShowExpirationModal(false)
+      setSelectedUser(null)
+      setNewUserForm({ email: '', password: '', name: '', role: 'cashier', expirationDate: '' })
+      await loadUsers()
+    } else {
+      alert('Error: ' + result.error)
+    }
+  }
+
+  const openExpirationModal = (user) => {
+    setSelectedUser(user)
+    setNewUserForm({
+      ...newUserForm,
+      expirationDate: user.expirationDate ? new Date(user.expirationDate).toISOString().split('T')[0] : ''
+    })
+    setShowExpirationModal(true)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading users...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -774,13 +813,14 @@ const UsersTab = ({ showModal, setShowModal, editingUser, setEditingUser }) => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold">User Management</h2>
-          <p className="text-sm text-gray-600">{users.length} / 20 users</p>
+          <p className="text-sm text-gray-600">
+            {pendingUsers.length} pending approval • {allUsers.length} total users
+          </p>
         </div>
         <button
           onClick={() => {
-            setEditingUser(null)
-            setFormData({ username: '', password: '', name: '' })
-            setShowModal(true)
+            setNewUserForm({ email: '', password: '', name: '', role: 'cashier', expirationDate: '' })
+            setShowAddUserModal(true)
           }}
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
@@ -789,49 +829,194 @@ const UsersTab = ({ showModal, setShowModal, editingUser, setEditingUser }) => {
         </button>
       </div>
 
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map(user => (
-              <tr key={user.id}>
-                <td className="px-6 py-4 whitespace-nowrap font-medium">{user.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.username}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => handleEdit(user)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Tabs */}
+      <div className="flex space-x-2 border-b">
+        <button
+          onClick={() => setActiveSection('pending')}
+          className={`px-4 py-2 font-medium relative ${
+            activeSection === 'pending'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Pending Approval ({pendingUsers.length})
+          {pendingUsers.length > 0 && (
+            <span className="ml-2 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
+              {pendingUsers.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveSection('all')}
+          className={`px-4 py-2 font-medium ${
+            activeSection === 'all'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          All Users ({allUsers.length})
+        </button>
       </div>
 
-      {/* Add/Edit User Modal */}
-      {showModal && (
+      {/* Pending Users Table */}
+      {activeSection === 'pending' && (
+        <div className="overflow-x-auto -mx-3 sm:mx-0">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registered</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {pendingUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                    No pending users
+                  </td>
+                </tr>
+              ) : (
+                pendingUsers.map(user => (
+                  <tr key={user.uid}>
+                    <td className="px-6 py-4 whitespace-nowrap font-medium">{user.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded ${
+                        user.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {user.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        {user.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleApprove(user.uid)}
+                              className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReject(user.uid)}
+                              className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {user.status === 'rejected' && (
+                          <button
+                            onClick={() => handleApprove(user.uid)}
+                            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                          >
+                            Approve
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* All Users Table */}
+      {activeSection === 'all' && (
+        <div className="overflow-x-auto -mx-3 sm:mx-0">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expires</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {allUsers.map(user => {
+                const expired = isUserExpired(user)
+                return (
+                  <tr key={user.uid} className={expired ? 'bg-red-50' : ''}>
+                    <td className="px-6 py-4 whitespace-nowrap font-medium">{user.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">
+                        {user.role || 'cashier'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded ${
+                        user.status === 'approved' 
+                          ? 'bg-green-100 text-green-800' 
+                          : user.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {user.status || 'pending'}
+                      </span>
+                      {expired && user.status === 'approved' && (
+                        <span className="ml-2 px-2 py-1 text-xs rounded bg-red-600 text-white">
+                          EXPIRED
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {user.expirationDate ? (
+                        <span className={expired ? 'text-red-600 font-semibold' : 'text-gray-600'}>
+                          {new Date(user.expirationDate).toLocaleDateString()}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">No expiration</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => openExpirationModal(user)}
+                          className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                          title="Set expiration date"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        {user.uid !== currentUser?.uid && (
+                          <button
+                            onClick={() => handleDelete(user.uid, user.name)}
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                            title="Delete user"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-semibold">
-                {editingUser ? 'Edit' : 'Add'} User
-              </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400">
+              <h3 className="text-xl font-semibold">Add New User</h3>
+              <button onClick={() => setShowAddUserModal(false)} className="text-gray-400">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -843,8 +1028,8 @@ const UsersTab = ({ showModal, setShowModal, editingUser, setEditingUser }) => {
                 </label>
                 <input
                   type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={newUserForm.name}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded"
                   required
                 />
@@ -852,43 +1037,139 @@ const UsersTab = ({ showModal, setShowModal, editingUser, setEditingUser }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username <span className="text-red-500">*</span>
+                  Email <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  type="email"
+                  value={newUserForm.email}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded"
-                  disabled={!!editingUser}
                   required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password {!editingUser && <span className="text-red-500">*</span>}
+                  Password <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  value={newUserForm.password}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded"
-                  placeholder={editingUser ? 'Leave blank to keep current' : ''}
+                  required
+                  minLength={6}
                 />
+                <p className="mt-1 text-xs text-gray-500">At least 6 characters</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  value={newUserForm.role}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                >
+                  <option value="cashier">Cashier</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Only cashier role available (admin restricted)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Expiration Date (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={newUserForm.expirationDate}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, expirationDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+                <p className="mt-1 text-xs text-gray-500">User account will expire on this date</p>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-2">
+                <p className="text-xs text-yellow-800">
+                  <strong>Note:</strong> You will be signed out after creating the user. Please login again to continue.
+                </p>
               </div>
 
               <div className="flex space-x-3 pt-4">
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowAddUserModal(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={handleSave}
+                  onClick={handleAddUser}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  Save
+                  Create User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Expiration Date Modal */}
+      {showExpirationModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-semibold">Set Expiration Date</h3>
+              <button onClick={() => setShowExpirationModal(false)} className="text-gray-400">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-2">
+                  User: <strong>{selectedUser.name}</strong> ({selectedUser.email})
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Expiration Date
+                </label>
+                <input
+                  type="date"
+                  value={newUserForm.expirationDate}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, expirationDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+                <p className="mt-1 text-xs text-gray-500">Leave empty for no expiration. Expired users cannot login.</p>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowExpirationModal(false)
+                    setSelectedUser(null)
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setNewUserForm({ ...newUserForm, expirationDate: '' })
+                    handleSetExpiration()
+                  }}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Remove
+                </button>
+                <button
+                  onClick={handleSetExpiration}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Set Date
                 </button>
               </div>
             </div>

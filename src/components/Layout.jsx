@@ -28,13 +28,16 @@ const Layout = ({ children }) => {
 
   const currentStore = stores.find(s => s.id === currentStoreId)
 
-  const navItems = [
+  const allNavItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/pos', label: 'POS', icon: ShoppingCart },
     { path: '/sales', label: 'Sales History', icon: History },
     { path: '/customers', label: 'Customers', icon: Users },
     { path: '/admin', label: 'Admin', icon: Settings }
   ]
+
+  // All registered users can access Admin Panel
+  const navItems = allNavItems
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
